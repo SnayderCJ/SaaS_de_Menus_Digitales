@@ -1,0 +1,38 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="container mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-6">Dashboard de {{ restaurante.nombre }}</h1>
+
+    <a href="#" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-6 inline-block">
+        + Añadir Nueva Categoría
+    </a>
+
+    {% for categoria in restaurante.categorias.all %}
+        <div class="bg-white shadow-md rounded p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-semibold">{{ categoria.nombre }}</h2>
+                <div>
+                    <a href="#" class="text-blue-500 hover:text-blue-700 mr-4">Editar</a>
+                    <a href="#" class="text-red-500 hover:text-red-700">Eliminar</a>
+                </div>
+            </div>
+
+            <ul>
+                {% for plato in categoria.platos.all %}
+                    <li class="flex justify-between items-center border-t py-3">
+                        <span>{{ plato.nombre }} - ${{ plato.precio }}</span>
+                        <div>
+                            <a href="#" class="text-blue-500 hover:text-blue-700 mr-4">Editar</a>
+                            <a href="#" class="text-red-500 hover:text-red-700">Eliminar</a>
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="text-gray-500">Aún no hay platos en esta categoría.</li>
+                {% endfor %}
+            </ul>
+            <a href="#" class="text-green-500 hover:text-green-700 mt-4 inline-block">+ Añadir Plato a esta Categoría</a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

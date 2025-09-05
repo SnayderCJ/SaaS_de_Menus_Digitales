@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ restaurante.nombre }} - Menú</title>
+    {% load static %}
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            {% if restaurante.logo %}
+                <img src="{{ restaurante.logo.url }}" alt="Logo de {{ restaurante.nombre }}" class="w-24 h-24 mx-auto rounded-full object-cover mb-4">
+            {% endif %}
+            <h1 class="text-4xl font-bold text-gray-800">{{ restaurante.nombre }}</h1>
+        </header>
+
+        {% for categoria in restaurante.categorias.all %}
+            <section class="mb-8">
+                <h2 class="text-2xl font-semibold text-gray-700 border-b-2 border-yellow-500 pb-2 mb-4">
+                    {{ categoria.nombre }}
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for plato in categoria.platos.all %}
+                        {% if plato.disponible %}
+                            <div class="bg-white p-4 rounded-lg shadow-md">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="text-lg font-bold text-gray-900">{{ plato.nombre }}</h3>
+                                    <p class="text-lg font-semibold text-gray-800">${{ plato.precio }}</p>
+                                </div>
+                                <p class="text-gray-600 mt-2">{{ plato.descripcion }}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </section>
+        {% endfor %}
+    </div>
+
+</body>
+</html>
