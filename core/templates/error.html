@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Error{% endblock %}
+
+{% block content %}
+<div class="text-center py-20">
+    <h1 class="text-3xl font-bold text-red-500">Ha Ocurrido un Error</h1>
+    <p class="text-xl text-gray-600 mt-4">{{ message }}</p>
+    <a href="{% url 'landing_page' %}" class="bg-blue-500 text-white font-bold rounded-full py-3 px-6 mt-8 inline-block hover:bg-blue-600">
+        Volver al Inicio
+    </a>
+</div>
+{% endblock %}

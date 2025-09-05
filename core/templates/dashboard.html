@@ -1,10 +1,10 @@
-{% extends "core/base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 <div class="container mx-auto p-8">
     <h1 class="text-3xl font-bold mb-6">Dashboard de {{ restaurante.nombre }}</h1>
 
-    <a href="#" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-6 inline-block">
+    <a href="{% url 'categoria_crear' %}" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-6 inline-block">
         + Añadir Nueva Categoría
     </a>
 

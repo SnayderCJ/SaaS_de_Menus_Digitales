@@ -1,46 +1,73 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import redirect
-from .models import Restaurante
 from django.contrib.auth.decorators import login_required
+from .forms import CustomUserCreationForm
+from .models import Restaurante
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView
+from .models import Categoria
+from django.contrib.auth import login 
+
+# --- Vistas Públicas ---
+
+def landing_page(request):
+    """ Muestra la página de inicio/ventas de tu SaaS. """
+    return render(request, 'landing_page.html')
+
 
 def menu_publico(request, restaurante_slug):
-    # Busca el restaurante por su 'slug' o muestra un error 404 si no existe.
-    # Esta es la forma segura de hacerlo.
+    """ Muestra el menú de un restaurante específico. """
     restaurante = get_object_or_404(Restaurante, slug=restaurante_slug)
-    
-    # Prepara el contexto para pasarlo a la plantilla
-    context = {
-        'restaurante': restaurante
-    }
-    return render(request, 'core/menu_publico.html', context)
- 
+    context = {'restaurante': restaurante}
+    return render(request, 'menu_publico.html', context)
+
+# --- Vistas de Autenticación ---
+
 def registro(request):
+    """ Maneja el registro y el inicio de sesión automático. """
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
+            # Guarda el nuevo usuario en la base de datos
             user = form.save()
-            # ¡Importante! Después de crear el usuario,
-            # creamos su perfil de Restaurante vacío.
-            # Aquí le pides más datos o creas uno por defecto.
-            Restaurante.objects.create(dueño=user, nombre="Nombre de tu Restaurante", slug=f"tu-slug-{user.username}")
-            # Puedes redirigirlo al login o a su dashboard
-            return redirect('login') 
+            
+            # Crea y vincula el perfil del restaurante
+            Restaurante.objects.create(
+                dueño=user, 
+                nombre=f"Restaurante de {user.username}", 
+                slug=f"{user.username}-menu"
+            )
+            
+            login(request, user)
+            return redirect('dashboard')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     
     return render(request, 'layout/registro.html', {'form': form})
- 
+
+# --- Vistas Privadas ---
+
 @login_required
 def dashboard(request):
-    # Obtenemos el restaurante asociado al usuario que ha iniciado sesión
+    """ Muestra el panel de control al dueño del restaurante. """
+    # Busca el restaurante del usuario logueado
     try:
         restaurante = request.user.restaurante
     except Restaurante.DoesNotExist:
-        # Manejar el caso de que un usuario no tenga restaurante (raro pero posible)
-        return render(request, 'core/error.html', {'message': 'No tienes un restaurante asociado.'})
+        # Esto puede pasar si algo falla en el registro. Es una salvaguarda.
+        return render(request, 'error.html', {'message': 'No tienes un restaurante asociado.'})
 
-    context = {
-        'restaurante': restaurante
-    }
-    return render(request, 'core/dashboard.html', context)
+    context = {'restaurante': restaurante}
+    return render(request, 'dashboard.html', context)
+
+class CategoriaCreateView(CreateView):
+    model = Categoria
+    fields = ['nombre'] # Solo pediremos el nombre de la categoría
+    template_name = 'categoria_form.html'
+    success_url = reverse_lazy('dashboard') # Redirige al dashboard si es exitoso
+
+    def form_valid(self, form):
+        # Antes de guardar el formulario, asignamos el restaurante del usuario actual.
+        # Esta es la lógica multi-inquilino.
+        form.instance.restaurante = self.request.user.restaurante
+        return super().form_valid(form)
