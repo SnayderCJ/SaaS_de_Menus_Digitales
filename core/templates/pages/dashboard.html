@@ -1,0 +1,64 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="min-h-screen w-full flex flex-col items-center bg-gradient-to-tr from-purple-100 via-white to-purple-200 py-12 px-4">
+  <div class="w-full max-w-4xl">
+    <h1 class="text-4xl font-bold mb-8 text-center text-purple-700 drop-shadow">Dashboard de {{ restaurante.nombre }}</h1>
+
+    <div class="flex justify-end mb-8">
+      <a href="{% url 'categoria_crear' %}" class="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 transition text-white font-bold py-2 px-5 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-purple-400">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        Añadir Nueva Categoría
+      </a>
+    </div>
+
+    {% for categoria in restaurante.categorias.all %}
+      <div class="bg-white rounded-2xl shadow-lg p-8 mb-8 transition hover:shadow-xl border-t-4 border-purple-300">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
+          <h2 class="text-2xl font-semibold text-purple-700 flex items-center gap-2">
+            <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              ircle cx="12" cy="12" r r="10" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h8M12 8v8" />
+            </svg>
+            {{ categoria.nombre }}
+          </h2>
+          <div class="flex gap-2 mt-4 md:mt-0">
+            <a href="{% url 'categoria_editar' categoria.pk %}" class="text-purple-500 hover:text-purple-700 px-3">
+            Editar
+          </a>
+          <a href="{% url 'categoria_eliminar' categoria.pk %}" class="text-red-500 hover:text-red-700 px-3">
+            Eliminar
+          </a>
+
+          </div>
+        </div>
+
+        <ul>
+          {% for plato in categoria.platos.all %}
+            <li class="flex justify-between items-center border-t border-gray-200 py-4">
+              <span class="text-gray-800">
+                {{ plato.nombre }} - <span class="font-bold text-purple-700">${{ plato.precio }}</span>
+              </span>
+              <div class="flex gap-2">
+                <a href="{% url 'categoria_editar' categoria.pk %}" class="text-purple-500 hover:text-purple-700 px-3">
+                  Editar
+                </a>
+                <a href="{% url 'categoria_eliminar' categoria.pk %}" class="text-red-500 hover:text-red-700 px-3">
+                  Eliminar
+                </a>
+
+              </div>
+            </li>
+          {% empty %}
+            <li class="text-gray-500 px-2 py-3">Aún no hay platos en esta categoría.</li>
+          {% endfor %}
+        </ul>
+        <a href="#" class="block text-purple-600 hover:text-purple-800 mt-6 font-semibold transition underline text-center">+ Añadir Plato a esta Categoría</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Crea tu Cuenta{% endblock %}
+
+{% block content %}
+<div class="min-h-screen w-full flex items-center justify-center bg-gradient-to-tr from-purple-100 via-white to-purple-200">
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl px-10 py-8">
+    <div class="flex flex-col items-center mb-8">
+      <svg class="w-16 h-16 text-purple-500 mb-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3zm0 2c-3 0-9 1.5-9 4.5V21h18v-3.5c0-3-6-4.5-9-4.5z"/>
+      </svg>
+      <h2 class="text-3xl font-bold text-gray-900 text-center">Crea tu Cuenta</h2>
+      <p class="text-gray-500 text-center mt-1">Regístrate y configura tu restaurante</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+
+      <!-- Formulario de usuario -->
+      {% for field in form %}
+        <div>
+          <label class="block text-gray-700 text-sm font-semibold mb-1">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}
+            <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+      <hr class="my-6 border-purple-200">
+
+      <!-- Formulario del restaurante -->
+      <h3 class="text-xl font-bold text-purple-700 text-center">Datos del Restaurante</h3>
+      {% for field in rest_form %}
+        <div>
+          <label class="block text-gray-700 text-sm font-semibold mb-1">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}
+            <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+      <div>
+        <button class="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 transition text-white font-bold py-3 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-purple-400"
+          type="submit">
+          <span>Registrarse</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="text-center mt-4">
+        <a href="{% url 'login' %}" class="text-purple-600 hover:underline text-sm">¿Ya tienes cuenta? Inicia sesión</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

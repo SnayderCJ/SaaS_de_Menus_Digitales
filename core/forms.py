@@ -1,33 +1,68 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from .models import Restaurante, Categoria
 
 class CustomUserCreationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        # Clases de Tailwind que queremos aplicar a cada campo
-        field_classes = "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        
-        # Iteramos sobre cada campo del formulario para añadirle las clases
+        field_classes = (
+            "w-full px-4 py-3 border border-gray-300 rounded-lg "
+            "focus:outline-none focus:ring-2 focus:ring-purple-400 transition "
+            "text-gray-700 bg-white"
+        )
         for fieldname, field in self.fields.items():
-            field.widget.attrs.update({'class': field_classes})
-            
+            classes = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = f'{classes} {field_classes}'
+
+        self.fields['username'].widget.attrs.setdefault('placeholder', 'Nombre de usuario')
+        self.fields['password1'].widget.attrs.setdefault('placeholder', 'Contraseña')
+        self.fields['password2'].widget.attrs.setdefault('placeholder', 'Repite la contraseña')
+
+        self.fields['username'].help_text = ""
+        self.fields['password1'].help_text = ""
+        self.fields['password2'].help_text = ""
+
 class CustomAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        field_classes = (
+            "w-full px-4 py-3 border border-gray-300 rounded-lg "
+            "focus:outline-none focus:ring-2 focus:ring-purple-400 transition "
+            "text-gray-700 bg-white"
+        )
+        self.fields['username'].widget.attrs['class'] = field_classes
+        self.fields['username'].widget.attrs['placeholder'] = 'Nombre de usuario'
+
+        self.fields['password'].widget.attrs['class'] = field_classes
+        self.fields['password'].widget.attrs['placeholder'] = '•••••••••'
         
-        # Clases de Tailwind
-        field_classes = "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+class RestauranteForm(forms.ModelForm):
+    class Meta:
+        model = Restaurante
+        fields = ['nombre', 'slug', 'logo']  
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition text-gray-700 bg-white',
+                'placeholder': 'Nombre del restaurante',
+            }),
+            'slug': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition text-gray-700 bg-white',
+                'placeholder': 'pizzeria-pepe (sin espacios ni ñ)',
+            }),
+            'logo': forms.ClearableFileInput(attrs={
+                'class': 'w-full bg-white px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition',
+            }),
+        }
         
-        # Personalizamos el campo de usuario
-        self.fields['username'].widget.attrs.update({
-            'class': field_classes,
-            'placeholder': 'Nombre de usuario'
-        })
-        
-        # Personalizamos el campo de contraseña
-        self.fields['password'].widget.attrs.update({
-            'class': field_classes,
-            'placeholder': '•••••••••'
-        })
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nombre']
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg '
+                         'focus:outline-none focus:ring-2 focus:ring-purple-400 transition '
+                         'text-gray-700 bg-white',
+                'placeholder': 'Bebidas, Postres, Entradas...',
+            }),
+        }
