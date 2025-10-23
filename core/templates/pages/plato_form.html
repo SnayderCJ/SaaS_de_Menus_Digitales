@@ -1,0 +1,42 @@
+{% extends "layout/base.html" %}
+{% block title %}Nuevo Plato{% endblock %}
+
+{% block content %}
+<div>
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl px-10 py-8">
+    <div class="flex flex-col items-center mb-8">
+      <div class="w-16 h-16 flex items-center justify-center bg-purple-100 rounded-full mb-3">
+        <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+      </div>
+      <h2 class="text-3xl font-bold text-gray-900 text-center">Añadir Nuevo Plato</h2>
+      <p class="text-gray-500 text-center mt-1">Agrega un plato a esta categoría</p>
+    </div>
+
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      {% for field in form %}
+        <div>
+          <label for="{{ field.id_for_label }}" class="block text-gray-700 text-sm font-semibold mb-1">
+            {{ field.label }}
+          </label>
+          {{ field }}
+          {% for error in field.errors %}
+            <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+      <div class="mt-8">
+        <button type="submit" class="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-purple-400 transition">
+          <span>Guardar Plato</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

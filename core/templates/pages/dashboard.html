@@ -56,7 +56,9 @@
             <li class="text-gray-500 px-2 py-3">Aún no hay platos en esta categoría.</li>
           {% endfor %}
         </ul>
-        <a href="#" class="block text-purple-600 hover:text-purple-800 mt-6 font-semibold transition underline text-center">+ Añadir Plato a esta Categoría</a>
+        <a href="{% url 'plato_crear' categoria.id %}" class="block text-purple-600 hover:text-purple-800 mt-6 font-semibold transition underline text-center">
+         + Añadir Plato a esta Categoría
+        </a>
       </div>
     {% endfor %}
   </div>

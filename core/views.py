@@ -3,11 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from django.contrib.auth import login
-from .forms import CustomUserCreationForm, RestauranteForm, CategoriaForm
-from .models import Restaurante, Categoria
+from .forms import CustomUserCreationForm, RestauranteForm, CategoriaForm, PlatoForm, CustomAuthenticationForm
+from .models import Restaurante, Categoria, Plato
 from django.views.generic.edit import UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.contrib.auth.views import LoginView
 
 
 # --- Vistas Públicas ---
@@ -27,7 +28,9 @@ def menu_publico(request, restaurante_slug):
 # --- Vistas de Autenticación ---
 
 def registro(request):
-    """ Permite registrar usuario + restaurante en una sola vista """
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
     if request.method == 'POST':
         user_form = CustomUserCreationForm(request.POST)
         rest_form = RestauranteForm(request.POST, request.FILES)
@@ -38,7 +41,6 @@ def registro(request):
             restaurante.dueño = user
             restaurante.save()
 
-            # Autologin del usuario recién registrado
             login(request, user)
             return redirect('dashboard')
     else:
@@ -50,7 +52,16 @@ def registro(request):
         'rest_form': rest_form
     })
 
+class CustomLoginView(LoginView):
+    template_name = 'pages/login.html'
+    authentication_form = CustomAuthenticationForm
 
+    def dispatch(self, request, *args, **kwargs):
+        # Si el usuario ya está logeado, redirigir al dashboard
+        if request.user.is_authenticated:
+            return redirect('dashboard')
+        return super().dispatch(request, *args, **kwargs)
+    
 # --- Vistas Privadas ---
 
 @login_required
@@ -101,3 +112,17 @@ class CategoriaDeleteView(LoginRequiredMixin, DeleteView):
     def get_queryset(self):
         # Solo permite eliminar categorías propias
         return Categoria.objects.filter(restaurante=self.request.user.restaurante)
+    
+class PlatoCreateView(CreateView):
+    model = Plato
+    form_class = PlatoForm
+    template_name = 'pages/plato_form.html'
+
+    def get_success_url(self):
+        categoria_id = self.kwargs['categoria_id']
+        return reverse_lazy('dashboard')  # volver al dashboard tras guardar
+
+    def form_valid(self, form):
+        categoria = get_object_or_404(Categoria, id=self.kwargs['categoria_id'])
+        form.instance.categoria = categoria
+        return super().form_valid(form)

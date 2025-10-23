@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import Restaurante, Categoria
+from .models import Restaurante, Categoria, Plato
 
 class CustomUserCreationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
@@ -64,5 +64,29 @@ class CategoriaForm(forms.ModelForm):
                          'focus:outline-none focus:ring-2 focus:ring-purple-400 transition '
                          'text-gray-700 bg-white',
                 'placeholder': 'Bebidas, Postres, Entradas...',
+            }),
+        }
+
+class PlatoForm(forms.ModelForm):
+    class Meta:
+        model = Plato
+        fields = ['nombre', 'descripcion', 'precio', 'disponible']
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition text-gray-700 bg-white',
+                'placeholder': 'Nombre del plato',
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition text-gray-700 bg-white',
+                'rows': 3,
+                'placeholder': 'Descripción breve del plato...',
+            }),
+            'precio': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition text-gray-700 bg-white',
+                'placeholder': 'Precio',
+                'min': '0',
+            }),
+            'disponible': forms.CheckboxInput(attrs={
+                'class': 'h-5 w-5 text-purple-500 focus:ring-2 focus:ring-purple-400',
             }),
         }
