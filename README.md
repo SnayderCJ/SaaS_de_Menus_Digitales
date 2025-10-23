@@ -1,3 +1,2 @@
-
 Tailwind:
-npx run dev
+npm run dev
