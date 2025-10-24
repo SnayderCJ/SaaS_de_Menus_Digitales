@@ -39,15 +39,11 @@ class CustomAuthenticationForm(AuthenticationForm):
 class RestauranteForm(forms.ModelForm):
     class Meta:
         model = Restaurante
-        fields = ['nombre', 'slug', 'logo']  
+        fields = ['nombre', 'logo']  
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition text-gray-700 bg-white',
                 'placeholder': 'Nombre del restaurante',
-            }),
-            'slug': forms.TextInput(attrs={
-                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition text-gray-700 bg-white',
-                'placeholder': 'pizzeria-pepe (sin espacios ni ñ)',
             }),
             'logo': forms.ClearableFileInput(attrs={
                 'class': 'w-full bg-white px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition',

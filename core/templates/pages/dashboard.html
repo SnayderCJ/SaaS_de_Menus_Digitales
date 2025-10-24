@@ -1,11 +1,11 @@
 {% extends "layout/base.html" %}
 
 {% block content %}
-
 <div class="min-h-screen w-full flex flex-col items-center bg-gradient-to-tr from-purple-100 via-white to-purple-200 py-12 px-4">
   <div class="w-full max-w-4xl">
     <h1 class="text-4xl font-bold mb-8 text-center text-purple-700 drop-shadow">Dashboard de {{ restaurante.nombre }}</h1>
 
+    <!-- Botón para nueva categoría -->
     <div class="flex justify-end mb-8">
       <a href="{% url 'categoria_crear' %}" class="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 transition text-white font-bold py-2 px-5 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-purple-400">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -15,7 +15,8 @@
       </a>
     </div>
 
-    {% for categoria in restaurante.categorias.all %}
+    <!-- Categorías -->
+    {% for categoria in page_obj %}
       <div class="bg-white rounded-2xl shadow-lg p-8 mb-8 transition hover:shadow-xl border-t-4 border-purple-300">
         <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
           <h2 class="text-2xl font-semibold text-purple-700 flex items-center gap-2">
@@ -25,17 +26,17 @@
             </svg>
             {{ categoria.nombre }}
           </h2>
-          <div class="flex gap-2 mt-4 md:mt-0">
-            <a href="{% url 'categoria_editar' categoria.pk %}" class="text-purple-500 hover:text-purple-700 px-3">
-            Editar
-          </a>
-          <a href="{% url 'categoria_eliminar' categoria.pk %}" class="text-red-500 hover:text-red-700 px-3">
-            Eliminar
-          </a>
 
+          <!-- Botones de categoría -->
+          <div class="flex gap-2 mt-4 md:mt-0">
+            <a href="{% url 'categoria_editar' categoria.pk %}" class="text-purple-500 hover:text-purple-700 font-medium">Editar</a>
+            <a href="#" 
+               onclick="confirmDelete('{% url 'categoria_eliminar' categoria.pk %}')" 
+               class="text-red-500 hover:text-red-700 font-medium">Eliminar</a>
           </div>
         </div>
 
+        <!-- Platos dentro de la categoría -->
         <ul>
           {% for plato in categoria.platos.all %}
             <li class="flex justify-between items-center border-t border-gray-200 py-4">
@@ -43,24 +44,41 @@
                 {{ plato.nombre }} - <span class="font-bold text-purple-700">${{ plato.precio }}</span>
               </span>
               <div class="flex gap-2">
-                <a href="{% url 'categoria_editar' categoria.pk %}" class="text-purple-500 hover:text-purple-700 px-3">
-                  Editar
-                </a>
-                <a href="{% url 'categoria_eliminar' categoria.pk %}" class="text-red-500 hover:text-red-700 px-3">
-                  Eliminar
-                </a>
-
+                <a href="{% url 'plato_editar' plato.pk %}" class="text-purple-500 hover:text-purple-700 text-sm font-medium">Editar</a>
+                <a href="#" 
+                   onclick="confirmDelete('{% url 'plato_eliminar' plato.pk %}')" 
+                   class="text-red-500 hover:text-red-700 text-sm font-medium">Eliminar</a>
               </div>
             </li>
           {% empty %}
-            <li class="text-gray-500 px-2 py-3">Aún no hay platos en esta categoría.</li>
+            <li class="text-gray-500 px-2 py-3 italic">Aún no hay platos en esta categoría.</li>
           {% endfor %}
         </ul>
-        <a href="{% url 'plato_crear' categoria.id %}" class="block text-purple-600 hover:text-purple-800 mt-6 font-semibold transition underline text-center">
-         + Añadir Plato a esta Categoría
+
+        <!-- Añadir nuevo plato -->
+        <a href="{% url 'plato_crear' categoria.id %}" 
+           class="block text-purple-600 hover:text-purple-800 mt-6 font-semibold transition underline text-center">
+          + Añadir Plato a esta Categoría
         </a>
       </div>
     {% endfor %}
+
+    <!-- Navegación de páginas -->
+    <div class="flex justify-center mt-8">
+      <nav class="inline-flex items-center space-x-2">
+        {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-purple-100 text-purple-600 rounded hover:bg-purple-200 transition">&laquo; Anterior</a>
+        {% endif %}
+
+        <span class="px-4 py-2 text-gray-700 bg-white border rounded shadow-sm">
+          Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-purple-100 text-purple-600 rounded hover:bg-purple-200 transition">Siguiente &raquo;</a>
+        {% endif %}
+      </nav>
+    </div>
   </div>
 </div>
 {% endblock %}

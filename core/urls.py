@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import home, menu_publico, registro, dashboard, CategoriaCreateView, CategoriaUpdateView, CategoriaDeleteView, PlatoCreateView, CustomLoginView
+from .views import home, menu_publico, registro, dashboard, CategoriaCreateView, CategoriaUpdateView, CategoriaDeleteView, PlatoCreateView, CustomLoginView, PlatoUpdateView, PlatoDeleteView
 
 urlpatterns = [
     # Rutas Públicas
@@ -20,5 +20,7 @@ urlpatterns = [
     path('categorias/<int:pk>/eliminar/', CategoriaDeleteView.as_view(), name='categoria_eliminar'),
     
     # PLato 
-    path('categoria/<int:categoria_id>/platos/nuevo/', PlatoCreateView.as_view(), name='plato_crear')
+    path('categoria/<int:categoria_id>/platos/nuevo/', PlatoCreateView.as_view(), name='plato_crear'),
+    path('platos/<int:pk>/editar/', PlatoUpdateView.as_view(), name='plato_editar'),
+    path('platos/<int:pk>/eliminar/', PlatoDeleteView.as_view(), name='plato_eliminar'),    
 ]

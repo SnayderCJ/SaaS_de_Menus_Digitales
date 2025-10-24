@@ -2,25 +2,83 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %} Menús Digitales {% endblock %}</title>
-    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Menú.Pro - Menús Digitales{% endblock %}</title>
+
+  <!-- Tailwind CSS -->
+  <link href="{% static 'css/output.css' %}" rel="stylesheet">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="min-h-screen bg-gradient-to-tr from-purple-100 via-white to-purple-200 text-gray-800">
 
-    {% include "components/nav.html" %}
+<body class="min-h-screen bg-gradient-to-tr from-purple-100 via-white to-purple-200 text-gray-800 flex flex-col">
 
-    <main class="flex justify-center items-center min-h-[80vh] p-4 md:p-8">
-        {% block content %}
-        {% endblock %}
-    </main>
+  <!-- Navbar -->
+  {% include 'components/nav.html' %}
 
-    <footer class="bg-white mt-8 py-4">
-        <div class="container mx-auto text-center text-gray-600">
-            <p>&copy; 2025 xSnazzyC MenuPro - Todos los derechos reservados.</p>
-        </div>
-    </footer>
+  <!-- Contenido principal -->
+  <main class="flex-grow flex justify-center items-center p-4 md:p-8">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white mt-8 py-4 shadow-inner">
+    <div class="container mx-auto text-center text-gray-600">
+      <p>&copy; 2025 xSnazzyC Menú.Pro — Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Toast flotante SweetAlert2 para mensajes -->
+  {% if messages %}
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          background: "#ffffff",
+          color: "#4b0082",
+          didOpen: (toast) => {
+            toast.addEventListener("mouseenter", Swal.stopTimer);
+            toast.addEventListener("mouseleave", Swal.resumeTimer);
+          }
+        });
+
+        {% for message in messages %}
+        Toast.fire({
+          icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'info' %}info{% else %}question{% endif %}",
+          title: "{{ message|escapejs }}"
+        });
+        {% endfor %}
+      });
+    </script>
+  {% endif %}
+
+  <!-- Confirmación global de eliminación -->
+  <script>
+    function confirmDelete(url) {
+      Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#8b5cf6',
+        cancelButtonColor: '#6b7280',
+        background: '#ffffff',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = url;
+        }
+      });
+    }
+  </script>
 
 </body>
 </html>
