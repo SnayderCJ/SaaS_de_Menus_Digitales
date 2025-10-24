@@ -13,29 +13,56 @@ from .forms import (
     RestauranteForm,
     CategoriaForm,
     PlatoForm,
-    CustomAuthenticationForm
+    CustomAuthenticationForm,
+    CustomUserProfileForm
 )
 from .models import Restaurante, Categoria, Plato
-
 
 # --- Vistas Públicas ---
 
 def home(request):
-    """ Muestra la página principal de tu SaaS """
     return render(request, 'pages/index.html')
 
+def handler404(request, exception):
+    return render(request, 'pages/error.html', status=404)
 
-def menu_publico(request, restaurante_slug):
-    """ Muestra el menú público de un restaurante por slug """
-    restaurante = get_object_or_404(Restaurante, slug=restaurante_slug)
-    context = {'restaurante': restaurante}
-    return render(request, 'components/menu_publico.html', context)
+def menu_publico(request, slug):
+    restaurante = get_object_or_404(Restaurante, slug=slug)
+    categorias = restaurante.categorias.prefetch_related('platos').all()
+    return render(request, 'components/menu_publico.html', {
+        'restaurante': restaurante,
+        'categorias': categorias
+    })
 
+@login_required
+def perfil(request):
+    restaurante = request.user.restaurante
+    user_form = CustomUserProfileForm(request.POST or None, instance=request.user)
+    rest_form = RestauranteForm(request.POST or None, request.FILES or None, instance=restaurante)
+
+    if request.method == 'POST':
+        if user_form.is_valid() and rest_form.is_valid():
+            user_form.save()
+            rest_form.save()
+            messages.success(request, "Perfil actualizado correctamente.")
+            return redirect('perfil')
+    return render(request, 'pages/perfil.html', {
+        'user_form': user_form,
+        'rest_form': rest_form,
+        'restaurante': restaurante
+    })
+
+@login_required
+def regenerar_qr(request):
+    restaurante = request.user.restaurante
+    restaurante.generar_qr()
+    restaurante.save()
+    messages.success(request, "Código QR regenerado correctamente.")
+    return redirect('dashboard')
 
 # --- Vistas de Autenticación ---
 
 def registro(request):
-    """ Vista de registro de usuario y restaurante """
     if request.user.is_authenticated:
         return redirect('dashboard')
 
@@ -60,38 +87,31 @@ def registro(request):
         'rest_form': rest_form
     })
 
-
 class CustomLoginView(LoginView):
     template_name = 'pages/login.html'
     authentication_form = CustomAuthenticationForm
 
     def dispatch(self, request, *args, **kwargs):
-        """ Evita que usuarios autenticados vuelvan a login """
         if request.user.is_authenticated:
             return redirect('dashboard')
         return super().dispatch(request, *args, **kwargs)
 
-
-# --- Vistas Privadas ---
+# --- Vistas Privadas (Dashboard) ---
 
 @login_required
 def dashboard(request):
-    """ Muestra el panel principal del restaurante. """
     try:
         restaurante = request.user.restaurante
     except Restaurante.DoesNotExist:
         return render(request, 'pages/error.html', {
             'message': 'No tienes un restaurante asociado.'
         })
-
     categorias = restaurante.categorias.all().order_by('nombre')
-    paginator = Paginator(categorias, 5)  # ← Mostrar 5 por página
+    paginator = Paginator(categorias, 2)  # Cambia a 6 si quieres mostrar más 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
     context = {'restaurante': restaurante, 'page_obj': page_obj}
     return render(request, 'pages/dashboard.html', context)
-
 
 # --- Categorías ---
 
@@ -106,7 +126,6 @@ class CategoriaCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, 'Categoría creada correctamente.')
         return super().form_valid(form)
 
-
 class CategoriaUpdateView(LoginRequiredMixin, UpdateView):
     model = Categoria
     form_class = CategoriaForm
@@ -120,7 +139,6 @@ class CategoriaUpdateView(LoginRequiredMixin, UpdateView):
     def get_queryset(self):
         return Categoria.objects.filter(restaurante=self.request.user.restaurante)
 
-
 class CategoriaDeleteView(LoginRequiredMixin, DeleteView):
     model = Categoria
     template_name = 'pages/categoria_confirm_delete.html'
@@ -132,7 +150,6 @@ class CategoriaDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_queryset(self):
         return Categoria.objects.filter(restaurante=self.request.user.restaurante)
-
 
 # --- Platos ---
 
@@ -154,7 +171,6 @@ class PlatoCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse_lazy('dashboard')
 
-
 class PlatoUpdateView(LoginRequiredMixin, UpdateView):
     model = Plato
     form_class = PlatoForm
@@ -167,7 +183,6 @@ class PlatoUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_queryset(self):
         return Plato.objects.filter(categoria__restaurante=self.request.user.restaurante)
-
 
 class PlatoDeleteView(LoginRequiredMixin, DeleteView):
     model = Plato

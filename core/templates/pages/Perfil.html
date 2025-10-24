@@ -1,0 +1,75 @@
+{% extends "layout/base.html" %}
+{% block title %}Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="min-h-screen w-full flex justify-center items-center bg-gradient-to-tr from-purple-100 via-white to-purple-200 py-12">
+  <div class="w-full max-w-3xl bg-white rounded-3xl shadow-2xl p-10 mx-2 flex flex-col gap-10">
+
+    <div class="flex flex-col items-center">
+      <div class="bg-purple-100 p-2 rounded-full border-4 border-white shadow -mt-10 mb-3">
+        <svg class="w-20 h-20 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="4" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-3.5 4-6.5 8-6.5s8 3 8 6.5"/>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-purple-700 mb-0">Mi Perfil</h2>
+      <p class="text-gray-500 text-center mb-3 text-sm">Administra tu usuario y los datos de tu restaurante</p>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="flex flex-col md:flex-row gap-8">
+      {% csrf_token %}
+      <div class="flex-1 bg-purple-50 rounded-xl p-6 shadow-md">
+        <h3 class="font-bold text-purple-600 mb-4 text-lg flex items-center gap-2">
+          <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 20c0-3.5 4-6.5 8-6.5s8 3 8 6.5"/>
+          </svg>
+          Tu Cuenta
+        </h3>
+        {% for field in user_form %}
+          <div class="mb-4">
+            <label class="text-gray-700 text-sm font-medium block mb-1">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="flex-1 bg-purple-50 rounded-xl p-6 shadow-md">
+        <h3 class="font-bold text-purple-600 mb-4 text-lg flex items-center gap-2">
+          <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18" />
+          </svg>
+          Restaurante
+        </h3>
+        {% for field in rest_form %}
+          <div class="mb-4">
+            <label class="text-gray-700 text-sm font-medium block mb-1">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <p class="text-xs text-red-500">{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endfor %}
+        {% if restaurante.qr_code %}
+          <div class="mt-6 flex flex-col items-center">
+            <p class="text-gray-600 text-sm mb-2">¡Comparte tu menú digital!</p>
+            <img src="{{ restaurante.qr_code.url }}" alt="Código QR del menú" class="w-24 h-24 rounded-lg shadow mx-auto border border-purple-300">
+            <a href="{{ restaurante.qr_code.url }}" download class="block mt-2 text-purple-600 hover:text-purple-800 text-xs font-semibold underline">Descargar código QR</a>
+          </div>
+        {% endif %}
+      </div>
+      <button class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 rounded-lg shadow transition mt-6" type="submit">
+        Guardar Cambios
+      </button>
+    </form>
+    <div class="text-center mt-6">
+      <a href="{% url 'dashboard' %}" class="text-purple-600 hover:text-purple-900 hover:underline font-semibold">
+        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+        Volver al Dashboard
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,11 +1,13 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import home, menu_publico, registro, dashboard, CategoriaCreateView, CategoriaUpdateView, CategoriaDeleteView, PlatoCreateView, CustomLoginView, PlatoUpdateView, PlatoDeleteView
+from .views import home, perfil, menu_publico, registro, dashboard, CategoriaCreateView, CategoriaUpdateView, CategoriaDeleteView, PlatoCreateView, CustomLoginView, PlatoUpdateView, PlatoDeleteView
 
 urlpatterns = [
     # Rutas Públicas
     path('', home, name='home'),
-    path('menu/<slug:restaurante_slug>/', menu_publico, name='menu_publico'),
+    path('perfil/', perfil, name='perfil'),
+    path('restaurante/<slug:slug>/', menu_publico, name='menu_publico'),
+
 
     # Rutas de Autenticación
     path('registro/',registro, name='registro'),
