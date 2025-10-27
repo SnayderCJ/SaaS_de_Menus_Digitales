@@ -7,6 +7,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.core.paginator import Paginator
 from django.contrib import messages
+from django.db.models import Count
+from datetime import datetime, timedelta
 
 from .forms import (
     CustomUserCreationForm,
@@ -16,7 +18,7 @@ from .forms import (
     CustomAuthenticationForm,
     CustomUserProfileForm
 )
-from .models import Restaurante, Categoria, Plato
+from .models import Restaurante, Categoria, Plato, Visit
 
 # --- Vistas Públicas ---
 
@@ -29,6 +31,8 @@ def handler404(request, exception):
 def menu_publico(request, slug):
     restaurante = get_object_or_404(Restaurante, slug=slug)
     categorias = restaurante.categorias.prefetch_related('platos').all()
+    # Registra visita cuando se accede al menú público
+    Visit.objects.create(restaurante=restaurante, tipo='menu')
     return render(request, 'components/menu_publico.html', {
         'restaurante': restaurante,
         'categorias': categorias
@@ -106,11 +110,39 @@ def dashboard(request):
         return render(request, 'pages/error.html', {
             'message': 'No tienes un restaurante asociado.'
         })
+
     categorias = restaurante.categorias.all().order_by('nombre')
-    paginator = Paginator(categorias, 3)  # Cambia a 6 si quieres mostrar más 
+    paginator = Paginator(categorias, 3)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    context = {'restaurante': restaurante, 'page_obj': page_obj}
+
+    hoy = datetime.now().date()
+    hace_14 = hoy - timedelta(days=13)
+
+    # Estadísticas principales
+    visitas_hoy = restaurante.visitas.filter(timestamp__date=hoy).count()
+    visitas_ultimas_2semanas = restaurante.visitas.filter(timestamp__date__gte=hace_14).count()
+
+    # Para gráfico: visitas agrupadas por día en últimos 14 días
+    stats_dias = restaurante.visitas.filter(timestamp__date__gte=hace_14).extra(
+        {'dia': "date(timestamp)"}
+    ).values('dia').annotate(total=Count('id')).order_by('dia')
+
+    # Platos más vistos
+    top_platos = (restaurante.visitas
+        .filter(plato__isnull=False)
+        .values('plato__nombre')
+        .annotate(veces=Count('id'))
+        .order_by('-veces')[:5])
+
+    context = {
+        'restaurante': restaurante,
+        'page_obj': page_obj,
+        'visitas_hoy': visitas_hoy,
+        'visitas_ultimas_2semanas': visitas_ultimas_2semanas,
+        'stats_dias': list(stats_dias),
+        'top_platos': top_platos,
+    }
     return render(request, 'pages/dashboard.html', context)
 
 # --- Categorías ---

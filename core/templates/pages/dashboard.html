@@ -7,6 +7,7 @@
 
     <!-- Panel Izquierdo: Info y Menú Digital -->
     <div class="md:col-span-1 flex flex-col gap-8">
+      <!-- Card Info Restaurante -->
       <div class="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center gap-6">
         {% if restaurante.logo %}
           <img src="{{ restaurante.logo.url }}" alt="{{ restaurante.nombre }}" class="w-32 h-32 rounded-full object-cover shadow-lg border-4 border-purple-200 border-double -mt-10">
@@ -22,7 +23,7 @@
           Ver Menú Público
         </a>
       </div>
-      <!-- Tarjeta Menú Digital / QR -->
+      <!-- Card Menú Digital / QR -->
       <div class="bg-gradient-to-br from-purple-100 via-white to-purple-200 p-6 rounded-2xl shadow-lg flex flex-col items-center border border-purple-200">
         <h3 class="font-bold text-lg text-purple-700 mb-3 flex items-center gap-2">
           <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -45,6 +46,36 @@
             <p class="text-gray-500 italic">El código QR se generará automáticamente al guardar tu restaurante.</p>
           </div>
         {% endif %}
+      </div>
+      <!-- Card Stats rápidas -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white rounded-2xl shadow p-6 text-center">
+          <div class="text-3xl font-black text-purple-600">{{ visitas_hoy }}</div>
+          <div class="text-gray-600 font-semibold">Visitas Hoy</div>
+        </div>
+        <div class="bg-white rounded-2xl shadow p-6 text-center">
+          <div class="text-3xl font-black text-purple-600">{{ visitas_ultimas_2semanas }}</div>
+          <div class="text-gray-600 font-semibold">Últimos 14 días</div>
+        </div>
+      </div>
+      <!-- Card Platos más vistos -->
+      <div class="bg-white rounded-2xl shadow p-6 mt-2">
+        <div class="font-bold text-purple-700 mb-2 flex items-center gap-2">
+          <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-6a2 2 0 1 1 4 0v6m-4 0h4m3-11a4 4 0 0 1-8 0" />
+          </svg>
+          Platos más vistos
+        </div>
+        <ul>
+          {% for p in top_platos %}
+            <li class="flex justify-between border-b border-gray-100 py-2">
+              <span>{{ p.plato__nombre }}</span>
+              <span class="text-purple-700 font-bold">{{ p.veces }}</span>
+            </li>
+          {% empty %}
+            <li class="text-xs text-gray-400 italic">Sin datos aún.</li>
+          {% endfor %}
+        </ul>
       </div>
     </div>
 

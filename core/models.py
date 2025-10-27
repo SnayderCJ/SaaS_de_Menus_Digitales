@@ -72,3 +72,13 @@ class Plato(models.Model):
 
     def __str__(self):
         return self.nombre
+    
+
+class Visit(models.Model):
+    restaurante = models.ForeignKey(Restaurante, on_delete=models.CASCADE, related_name="visitas")
+    plato = models.ForeignKey(Plato, on_delete=models.SET_NULL, null=True, blank=True, related_name="vistas")
+    timestamp = models.DateTimeField(auto_now_add=True)
+    tipo = models.CharField(max_length=20, choices=[('qr', 'Escaneo QR'), ('menu', 'Visita Menú'), ('plato', 'Detalle Plato')], default='menu')
+
+    def __str__(self):
+        return f"{self.restaurante} - {self.timestamp} - {self.tipo}"
