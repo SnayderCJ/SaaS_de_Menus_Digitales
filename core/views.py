@@ -45,7 +45,7 @@ def perfil(request):
             user_form.save()
             rest_form.save()
             messages.success(request, "Perfil actualizado correctamente.")
-            return redirect('perfil')
+            return redirect('dashboard')
     return render(request, 'pages/perfil.html', {
         'user_form': user_form,
         'rest_form': rest_form,
@@ -107,7 +107,7 @@ def dashboard(request):
             'message': 'No tienes un restaurante asociado.'
         })
     categorias = restaurante.categorias.all().order_by('nombre')
-    paginator = Paginator(categorias, 2)  # Cambia a 6 si quieres mostrar más 
+    paginator = Paginator(categorias, 3)  # Cambia a 6 si quieres mostrar más 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {'restaurante': restaurante, 'page_obj': page_obj}

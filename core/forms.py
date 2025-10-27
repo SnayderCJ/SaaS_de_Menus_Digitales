@@ -104,7 +104,7 @@ class CategoriaForm(forms.ModelForm):
 class PlatoForm(forms.ModelForm):
     class Meta:
         model = Plato
-        fields = ['nombre', 'descripcion', 'precio', 'disponible']
+        fields = ['nombre', 'descripcion', 'precio', 'disponible', 'imagen']
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition text-gray-700 bg-white',
@@ -122,5 +122,8 @@ class PlatoForm(forms.ModelForm):
             }),
             'disponible': forms.CheckboxInput(attrs={
                 'class': 'h-5 w-5 text-purple-500 focus:ring-2 focus:ring-purple-400',
+            }),
+            'imagen': forms.ClearableFileInput(attrs={
+                'class': 'w-full bg-white px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition',
             }),
         }
